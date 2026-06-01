@@ -1,0 +1,33 @@
+Package: lexiExpand
+Title: Semantic Dictionary Expander for Text Analysis
+Version: 0.2.0
+Authors@R: person("Gopi Nath", "Vajpai",
+    role  = c("aut", "cre"),
+    email = "gvajpai@udel.edu")
+Description: Expands seed dictionaries used in dictionary-based text analysis
+    by finding semantically similar words using pre-trained GloVe word
+    embeddings. Given a small set of seed words (e.g. c("sad", "angry")),
+    the package computes cosine similarity across a large vocabulary and
+    returns a ranked list of candidates. Supports two multi-seed strategies:
+    per-seed neighbor search (preserves which seed drove each match) and
+    centroid mode (finds words nearest the averaged semantic center of all
+    seeds jointly). An interactive review wizard lets researchers accept or
+    reject candidates word-by-word. Accepted words can be exported to plain
+    lists, data frames, or 'quanteda' dictionary objects. Vectors are
+    downloaded once via Stanford NLP or the 'textdata' package and cached
+    locally; no API key is required, ensuring full reproducibility.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+VignetteBuilder: knitr
+Imports: cli (>= 3.0.0), data.table (>= 1.14.0), rappdirs (>= 0.3.3)
+Suggests: mdeinR, quanteda (>= 3.0.0), textdata (>= 0.4.0), testthat
+        (>= 3.0.0), knitr, rmarkdown
+Config/testthat/edition: 3
+URL: https://github.com/gvajpai/lexiExpand
+BugReports: https://github.com/gvajpai/lexiExpand/issues
+NeedsCompilation: no
+Packaged: 2026-06-01 14:21:41 UTC; root
+Author: Gopi Nath Vajpai [aut, cre]
+Maintainer: Gopi Nath Vajpai <gvajpai@udel.edu>

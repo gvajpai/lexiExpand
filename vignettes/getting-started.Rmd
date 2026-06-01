@@ -1,0 +1,372 @@
+---
+title: "Getting Started with lexiExpand"
+author: "Gopi Nath Vajpai"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with lexiExpand}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  eval      = FALSE
+)
+```
+
+## Why lexiExpand?
+
+Dictionary-based text analysis is one of the most widely used methods in
+computational social science, finance, and political science. Researchers
+count how often specific words appear in documents to measure latent
+concepts — *uncertainty*, *innovation*, *affect* — without training a
+complex model from scratch.
+
+The catch: **dictionary coverage**. Miss the word "automobile" in your
+*Transportation* dictionary and every document that uses it is silently
+under-counted. Closing these gaps traditionally required either painful
+manual synonym searches or training a full Word2Vec / GloVe model.
+
+`lexiExpand` automates that step. You give it a small **seed dictionary**;
+it uses pre-trained GloVe embeddings to find the nearest words in semantic
+space and walks you through an interactive accept/reject review. The result
+is a richer, more reproducible dictionary in minutes.
+
+---
+
+## Installation
+
+```{r install}
+# From a local source tarball
+install.packages("lexiExpand_0.2.0.tar.gz", repos = NULL, type = "source")
+
+# Required dependencies (installed automatically)
+# cli, data.table, rappdirs
+
+# Optional — needed only for the quanteda export format
+install.packages("quanteda")
+
+# Optional — alternative vector source
+install.packages("textdata")
+```
+
+---
+
+## Step 1 — Download word vectors (once)
+
+`lexiExpand` ships without bundled vectors to keep the package small and
+CRAN-compatible. On first use, call `download_vectors()` to fetch the
+Stanford GloVe 6B model and cache it on disk. This step happens **once
+per machine**.
+
+```{r download}
+library(lexiExpand)
+
+# Downloads ~822 MB zip, extracts the 50-dimension file (~160 MB),
+# then deletes the zip. Subsequent calls detect the cache and skip.
+download_vectors("glove.6B.50d")
+#> ! Downloading the GloVe 6B source archive (~822 MB).
+#>   This is a one-time download; the zip is deleted after extraction.
+#> i URL: https://downloads.cs.stanford.edu/nlp/data/glove.6B.zip
+#> Extracting glove.6B.50d.txt from archive...
+#> Deleted source zip to save disk space.
+#> v Done! Vectors cached at:
+#>   ~/.local/share/lexiExpand/glove.6B.50d.txt
+```
+
+The cache lives in your OS user-data directory (managed by `rappdirs`):
+
+| Platform | Default path |
+|----------|-------------|
+| Linux    | `~/.local/share/lexiExpand/` |
+| macOS    | `~/Library/Application Support/lexiExpand/` |
+| Windows  | `C:\Users\<you>\AppData\Local\lexiExpand\` |
+
+You can override this with the `cache_dir` argument on any function.
+If the download times out, increase the limit:
+
+```{r timeout}
+download_vectors("glove.6B.50d", timeout = 7200)  # 2 hours
+```
+
+**Alternative:** use the `textdata` package as the vector source — it
+handles its own consent-and-cache flow:
+
+```{r textdata-source}
+# install.packages("textdata")
+vecs <- load_vectors_textdata(dimensions = 300, vocab_size = 50000)
+```
+
+---
+
+## Step 2 — Expand a seed dictionary
+
+### 2a. Interactive wizard (recommended for exploratory work)
+
+```{r expand-interactive}
+result <- expand_dict(
+  seed      = c("sad", "angry"),
+  n         = 20,          # candidates to surface per seed word
+  threshold = 0.70         # minimum cosine similarity to show
+)
+```
+
+The wizard displays each candidate with its similarity score. Use the
+keyboard to review:
+
+```
+── Semantic Dictionary Expander — Review Wizard ──────────────────────────────
+Seed words: "sad" and "angry"
+20 candidates to review, sorted by similarity.
+Keys: y accept · n skip · a accept all remaining · q quit
+
+── [1/20] ─────────────────── similarity: 84%  |  seed: sad ──────────────────
+miserable
+  > y
+✔ Added "miserable"
+```
+
+### 2b. Non-interactive / scripted mode
+
+Set `interactive = FALSE` to get the raw ranked data frame — useful inside
+RMarkdown documents, batch scripts, or automated pipelines.
+
+```{r expand-noninteractive}
+candidates <- expand_dict(
+  seed        = c("sad", "angry"),
+  n           = 20,
+  threshold   = 0.65,
+  interactive = FALSE
+)
+
+head(candidates)
+#>          word similarity   seed pct_match
+#> 1   miserable      0.843    sad       84%
+#> 2     furious      0.821  angry       82%
+#> 3     unhappy      0.791    sad       79%
+#> 4   resentful      0.778  angry       78%
+#> 5      gloomy      0.764    sad       76%
+#> 6      bitter      0.751  angry       75%
+```
+
+### 2c. Centroid mode
+
+Instead of finding neighbours for each seed separately, centroid mode
+averages all seeds into a single vector and finds words nearest that point.
+Better when your seeds form a coherent concept.
+
+```{r centroid}
+candidates_c <- expand_dict(
+  seed        = c("sad", "angry"),
+  seed_mode   = "centroid",    # default is "individual"
+  n           = 20,
+  threshold   = 0.65,
+  interactive = FALSE
+)
+# $seed column is "centroid" for every row
+```
+
+### 2d. Re-using a loaded matrix (efficient repeated calls)
+
+```{r reuse-vectors}
+vecs <- load_vectors("glove.6B.50d")
+
+neg_emotion  <- expand_dict(c("sad", "angry"),
+                             vectors = vecs, interactive = FALSE)
+pos_emotion  <- expand_dict(c("happy", "joyful"),
+                             vectors = vecs, interactive = FALSE)
+uncertainty  <- expand_dict(c("uncertain", "ambiguous", "unclear"),
+                             vectors = vecs, interactive = FALSE)
+```
+
+---
+
+## Step 3 — Expand a full lexicon data frame
+
+`expand_lexicon()` accepts a two-column data frame (word + dimension label)
+and expands every dimension in one call. This is the main entry point when
+working with an established lexicon like the MDE dictionary from
+[mdeinR](https://github.com/gvajpai/mdeinR).
+
+```{r expand-lexicon}
+my_lexicon <- data.frame(
+  word      = c("aroma",     "flavor",    "texture",
+                "delighted", "excited",   "moved",
+                "welcoming", "attentive", "friendly"),
+  dimension = c("sensory",   "sensory",   "sensory",
+                "affect",    "affect",    "affect",
+                "social",    "social",    "social")
+)
+
+candidates <- expand_lexicon(
+  lexicon   = my_lexicon,
+  n         = 15,
+  threshold = 0.68,
+  vectors   = vecs
+)
+
+# Results have a $dimension column
+table(candidates$dimension)
+#> affect sensory  social
+#>     12      14      11
+```
+
+If your column names differ from `word`/`dimension`:
+
+```{r custom-cols}
+expand_lexicon(my_lexicon,
+               word_col = "term",
+               dim_col  = "group",
+               vectors  = vecs)
+```
+
+---
+
+## Step 4 — Export to your analysis tool
+
+### Plain R list
+
+```{r export-list}
+dict_list <- export_dict(
+  result = candidates,          # data.frame from expand_dict / expand_lexicon
+  seed   = c("sad", "angry"),
+  name   = "negative_emotion",
+  format = "list"
+)
+
+dict_list
+#> $negative_emotion
+#>  [1] "sad"       "angry"     "miserable" "furious"   ...
+
+saveRDS(dict_list, "dictionaries/negative_emotion.rds")
+```
+
+### quanteda dictionary
+
+```{r export-quanteda}
+library(quanteda)
+
+neg_dict <- export_dict(
+  result = result,              # lexiexpand_result from interactive wizard
+  name   = "negative_emotion",
+  format = "quanteda"
+)
+
+# Score a corpus
+corp   <- corpus(c(
+  doc1 = "She felt sad and miserable after the news.",
+  doc2 = "He was furious but tried to stay calm.",
+  doc3 = "The report showed stable and optimistic results."
+))
+scored <- dfm(tokens(corp)) |>
+  dfm_lookup(dictionary = neg_dict) |>
+  convert(to = "data.frame")
+
+scored
+#>   doc_id  negative_emotion
+#> 1   doc1                 2
+#> 2   doc2                 1
+#> 3   doc3                 0
+```
+
+### Two-column data frame (tidytext / CSV)
+
+```{r export-df}
+dict_df <- export_dict(
+  result = candidates,
+  seed   = c("sad", "angry"),
+  name   = "negative_emotion",
+  format = "data.frame"
+)
+
+write.csv(dict_df, "dictionaries/negative_emotion.csv", row.names = FALSE)
+```
+
+---
+
+## Full scripted pipeline (MDE example)
+
+```{r full-pipeline}
+library(lexiExpand)
+library(mdeinR)     # provides mde_words (word + dimension columns)
+
+# 1. Setup (first run only)
+download_vectors("glove.6B.50d")
+
+# 2. Load vectors once
+vecs <- load_vectors("glove.6B.50d", vocab_size = 100000L)
+
+# 3. Expand all MDE dimensions from the lexicon data frame
+candidates_mde <- expand_lexicon(
+  lexicon   = mde_words,
+  n         = 25L,
+  threshold = 0.68,
+  seed_mode = "individual",
+  vectors   = vecs
+)
+
+# 4. Keep top-10 per dimension
+library(data.table)
+top10 <- as.data.table(candidates_mde)[
+  , head(.SD, 10L), by = dimension
+]
+
+# 5. Build augmented dictionary list
+mde_aug <- lapply(split(mde_words$word, mde_words$dimension), identity)
+for (dim in unique(top10$dimension)) {
+  mde_aug[[dim]] <- unique(c(mde_aug[[dim]], top10[dimension == dim, word]))
+}
+
+# 6. Export to quanteda and save
+library(quanteda)
+full_dict <- quanteda::dictionary(mde_aug)
+saveRDS(full_dict, "mde_dictionary_augmented.rds")
+
+# 7. Score reviews
+reviews <- corpus(c(
+  r1 = "The aroma was captivating and the presentation absolutely stunning.",
+  r2 = "Staff were genuinely warm — we felt truly part of a community.",
+  r3 = "We learned about fermentation — a fascinating culinary journey.",
+  r4 = "Very average. Nothing remarkable about the food or atmosphere."
+))
+
+dfm(tokens(reviews)) |>
+  dfm_lookup(dictionary = full_dict) |>
+  convert(to = "data.frame")
+#>   doc_id sensory affect social intellectual behavioral
+#> 1     r1       3      1      0            0          0
+#> 2     r2       0      1      3            0          0
+#> 3     r3       0      1      0            3          0
+#> 4     r4       0      0      0            0          0
+```
+
+---
+
+## Tips and best practices
+
+**Choose your threshold carefully.** A threshold of 0.65–0.70 gives a broad
+semantic neighbourhood; 0.80+ restricts to near-synonyms. For publication
+work, review candidates manually (`interactive = TRUE`) rather than
+accepting all.
+
+**Watch for antonyms.** Word embedding spaces cluster by *distributional
+context*, not polarity. "Sad" and "glad" appear in similar contexts, so
+"glad" may appear as a high-similarity candidate for a negative emotion
+seed. Always review candidates before accepting.
+
+**Higher dimensions = better neighbours (usually).** The 50-dimension model
+loads fast and works well for common English words. For domain-specific
+vocabulary (hospitality, legal, financial), try `"glove.6B.100d"` or
+`"glove.6B.200d"`.
+
+**Reproducibility.** Save both the final dictionary *and* the full candidate
+table so you can document which words were considered:
+
+```{r reproducibility}
+write.csv(candidates_mde,
+          "appendix_all_candidates.csv",
+          row.names = FALSE)
+```

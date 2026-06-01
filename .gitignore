@@ -1,0 +1,18 @@
+# R build artefacts
+*.Rcheck/
+*.tar.gz
+*.o
+*.so
+
+# RStudio project files
+.Rproj.user/
+*.Rproj
+
+# R history and environment
+.RData
+.Rhistory
+.Rproj.user
+
+# OS files
+.DS_Store
+Thumbs.db

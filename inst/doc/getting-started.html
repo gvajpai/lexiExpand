@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Gopi Nath Vajpai" />
+
+<meta name="date" content="2026-06-01" />
+
+<title>Getting Started with lexiExpand</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Getting Started with lexiExpand</h1>
+<h4 class="author">Gopi Nath Vajpai</h4>
+<h4 class="date">2026-06-01</h4>
+
+
+
+<div id="why-lexiexpand" class="section level2">
+<h2>Why lexiExpand?</h2>
+<p>Dictionary-based text analysis is one of the most widely used methods
+in computational social science, finance, and political science.
+Researchers count how often specific words appear in documents to
+measure latent concepts — <em>uncertainty</em>, <em>innovation</em>,
+<em>affect</em> — without training a complex model from scratch.</p>
+<p>The catch: <strong>dictionary coverage</strong>. Miss the word
+“automobile” in your <em>Transportation</em> dictionary and every
+document that uses it is silently under-counted. Closing these gaps
+traditionally required either painful manual synonym searches or
+training a full Word2Vec / GloVe model.</p>
+<p><code>lexiExpand</code> automates that step. You give it a small
+<strong>seed dictionary</strong>; it uses pre-trained GloVe embeddings
+to find the nearest words in semantic space and walks you through an
+interactive accept/reject review. The result is a richer, more
+reproducible dictionary in minutes.</p>
+<hr />
+</div>
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># From a local source tarball</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;lexiExpand_0.2.0.tar.gz&quot;</span>, <span class="at">repos =</span> <span class="cn">NULL</span>, <span class="at">type =</span> <span class="st">&quot;source&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co"># Required dependencies (installed automatically)</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># cli, data.table, rappdirs</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># Optional — needed only for the quanteda export format</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;quanteda&quot;</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="co"># Optional — alternative vector source</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">&quot;textdata&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="step-1-download-word-vectors-once" class="section level2">
+<h2>Step 1 — Download word vectors (once)</h2>
+<p><code>lexiExpand</code> ships without bundled vectors to keep the
+package small and CRAN-compatible. On first use, call
+<code>download_vectors()</code> to fetch the Stanford GloVe 6B model and
+cache it on disk. This step happens <strong>once per
+machine</strong>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(lexiExpand)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Downloads ~822 MB zip, extracts the 50-dimension file (~160 MB),</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># then deletes the zip. Subsequent calls detect the cache and skip.</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">download_vectors</span>(<span class="st">&quot;glove.6B.50d&quot;</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; ! Downloading the GloVe 6B source archive (~822 MB).</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;   This is a one-time download; the zip is deleted after extraction.</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; i URL: https://downloads.cs.stanford.edu/nlp/data/glove.6B.zip</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; Extracting glove.6B.50d.txt from archive...</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; Deleted source zip to save disk space.</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; v Done! Vectors cached at:</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt;   ~/.local/share/lexiExpand/glove.6B.50d.txt</span></span></code></pre></div>
+<p>The cache lives in your OS user-data directory (managed by
+<code>rappdirs</code>):</p>
+<table>
+<thead>
+<tr class="header">
+<th>Platform</th>
+<th>Default path</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linux</td>
+<td><code>~/.local/share/lexiExpand/</code></td>
+</tr>
+<tr class="even">
+<td>macOS</td>
+<td><code>~/Library/Application Support/lexiExpand/</code></td>
+</tr>
+<tr class="odd">
+<td>Windows</td>
+<td><code>C:\Users\&lt;you&gt;\AppData\Local\lexiExpand\</code></td>
+</tr>
+</tbody>
+</table>
+<p>You can override this with the <code>cache_dir</code> argument on any
+function. If the download times out, increase the limit:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">download_vectors</span>(<span class="st">&quot;glove.6B.50d&quot;</span>, <span class="at">timeout =</span> <span class="dv">7200</span>)  <span class="co"># 2 hours</span></span></code></pre></div>
+<p><strong>Alternative:</strong> use the <code>textdata</code> package
+as the vector source — it handles its own consent-and-cache flow:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># install.packages(&quot;textdata&quot;)</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>vecs <span class="ot">&lt;-</span> <span class="fu">load_vectors_textdata</span>(<span class="at">dimensions =</span> <span class="dv">300</span>, <span class="at">vocab_size =</span> <span class="dv">50000</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="step-2-expand-a-seed-dictionary" class="section level2">
+<h2>Step 2 — Expand a seed dictionary</h2>
+<div id="a.-interactive-wizard-recommended-for-exploratory-work" class="section level3">
+<h3>2a. Interactive wizard (recommended for exploratory work)</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>result <span class="ot">&lt;-</span> <span class="fu">expand_dict</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">seed      =</span> <span class="fu">c</span>(<span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">n         =</span> <span class="dv">20</span>,          <span class="co"># candidates to surface per seed word</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">threshold =</span> <span class="fl">0.70</span>         <span class="co"># minimum cosine similarity to show</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>)</span></code></pre></div>
+<p>The wizard displays each candidate with its similarity score. Use the
+keyboard to review:</p>
+<pre><code>── Semantic Dictionary Expander — Review Wizard ──────────────────────────────
+Seed words: &quot;sad&quot; and &quot;angry&quot;
+20 candidates to review, sorted by similarity.
+Keys: y accept · n skip · a accept all remaining · q quit
+
+── [1/20] ─────────────────── similarity: 84%  |  seed: sad ──────────────────
+miserable
+  &gt; y
+✔ Added &quot;miserable&quot;</code></pre>
+</div>
+<div id="b.-non-interactive-scripted-mode" class="section level3">
+<h3>2b. Non-interactive / scripted mode</h3>
+<p>Set <code>interactive = FALSE</code> to get the raw ranked data frame
+— useful inside RMarkdown documents, batch scripts, or automated
+pipelines.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>candidates <span class="ot">&lt;-</span> <span class="fu">expand_dict</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">seed        =</span> <span class="fu">c</span>(<span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">n           =</span> <span class="dv">20</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">threshold   =</span> <span class="fl">0.65</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="at">interactive =</span> <span class="cn">FALSE</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">head</span>(candidates)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt;          word similarity   seed pct_match</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; 1   miserable      0.843    sad       84%</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; 2     furious      0.821  angry       82%</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 3     unhappy      0.791    sad       79%</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; 4   resentful      0.778  angry       78%</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; 5      gloomy      0.764    sad       76%</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; 6      bitter      0.751  angry       75%</span></span></code></pre></div>
+</div>
+<div id="c.-centroid-mode" class="section level3">
+<h3>2c. Centroid mode</h3>
+<p>Instead of finding neighbours for each seed separately, centroid mode
+averages all seeds into a single vector and finds words nearest that
+point. Better when your seeds form a coherent concept.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>candidates_c <span class="ot">&lt;-</span> <span class="fu">expand_dict</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="at">seed        =</span> <span class="fu">c</span>(<span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>),</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">seed_mode   =</span> <span class="st">&quot;centroid&quot;</span>,    <span class="co"># default is &quot;individual&quot;</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="at">n           =</span> <span class="dv">20</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="at">threshold   =</span> <span class="fl">0.65</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="at">interactive =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>)</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co"># $seed column is &quot;centroid&quot; for every row</span></span></code></pre></div>
+</div>
+<div id="d.-re-using-a-loaded-matrix-efficient-repeated-calls" class="section level3">
+<h3>2d. Re-using a loaded matrix (efficient repeated calls)</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>vecs <span class="ot">&lt;-</span> <span class="fu">load_vectors</span>(<span class="st">&quot;glove.6B.50d&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>neg_emotion  <span class="ot">&lt;-</span> <span class="fu">expand_dict</span>(<span class="fu">c</span>(<span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>                             <span class="at">vectors =</span> vecs, <span class="at">interactive =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>pos_emotion  <span class="ot">&lt;-</span> <span class="fu">expand_dict</span>(<span class="fu">c</span>(<span class="st">&quot;happy&quot;</span>, <span class="st">&quot;joyful&quot;</span>),</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>                             <span class="at">vectors =</span> vecs, <span class="at">interactive =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>uncertainty  <span class="ot">&lt;-</span> <span class="fu">expand_dict</span>(<span class="fu">c</span>(<span class="st">&quot;uncertain&quot;</span>, <span class="st">&quot;ambiguous&quot;</span>, <span class="st">&quot;unclear&quot;</span>),</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>                             <span class="at">vectors =</span> vecs, <span class="at">interactive =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="step-3-expand-a-full-lexicon-data-frame" class="section level2">
+<h2>Step 3 — Expand a full lexicon data frame</h2>
+<p><code>expand_lexicon()</code> accepts a two-column data frame (word +
+dimension label) and expands every dimension in one call. This is the
+main entry point when working with an established lexicon like the MDE
+dictionary from <a href="https://github.com/gvajpai/mdeinR">mdeinR</a>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>my_lexicon <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="at">word      =</span> <span class="fu">c</span>(<span class="st">&quot;aroma&quot;</span>,     <span class="st">&quot;flavor&quot;</span>,    <span class="st">&quot;texture&quot;</span>,</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>                <span class="st">&quot;delighted&quot;</span>, <span class="st">&quot;excited&quot;</span>,   <span class="st">&quot;moved&quot;</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>                <span class="st">&quot;welcoming&quot;</span>, <span class="st">&quot;attentive&quot;</span>, <span class="st">&quot;friendly&quot;</span>),</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">dimension =</span> <span class="fu">c</span>(<span class="st">&quot;sensory&quot;</span>,   <span class="st">&quot;sensory&quot;</span>,   <span class="st">&quot;sensory&quot;</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>                <span class="st">&quot;affect&quot;</span>,    <span class="st">&quot;affect&quot;</span>,    <span class="st">&quot;affect&quot;</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>                <span class="st">&quot;social&quot;</span>,    <span class="st">&quot;social&quot;</span>,    <span class="st">&quot;social&quot;</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>candidates <span class="ot">&lt;-</span> <span class="fu">expand_lexicon</span>(</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>  <span class="at">lexicon   =</span> my_lexicon,</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>  <span class="at">n         =</span> <span class="dv">15</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a>  <span class="at">threshold =</span> <span class="fl">0.68</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>  <span class="at">vectors   =</span> vecs</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>)</span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co"># Results have a $dimension column</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="fu">table</span>(candidates<span class="sc">$</span>dimension)</span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; affect sensory  social</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt;     12      14      11</span></span></code></pre></div>
+<p>If your column names differ from
+<code>word</code>/<code>dimension</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">expand_lexicon</span>(my_lexicon,</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>               <span class="at">word_col =</span> <span class="st">&quot;term&quot;</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>               <span class="at">dim_col  =</span> <span class="st">&quot;group&quot;</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>               <span class="at">vectors  =</span> vecs)</span></code></pre></div>
+<hr />
+</div>
+<div id="step-4-export-to-your-analysis-tool" class="section level2">
+<h2>Step 4 — Export to your analysis tool</h2>
+<div id="plain-r-list" class="section level3">
+<h3>Plain R list</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>dict_list <span class="ot">&lt;-</span> <span class="fu">export_dict</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  <span class="at">result =</span> candidates,          <span class="co"># data.frame from expand_dict / expand_lexicon</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="at">seed   =</span> <span class="fu">c</span>(<span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>),</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="at">name   =</span> <span class="st">&quot;negative_emotion&quot;</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="at">format =</span> <span class="st">&quot;list&quot;</span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>)</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a>dict_list</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="co">#&gt; $negative_emotion</span></span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="co">#&gt;  [1] &quot;sad&quot;       &quot;angry&quot;     &quot;miserable&quot; &quot;furious&quot;   ...</span></span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="fu">saveRDS</span>(dict_list, <span class="st">&quot;dictionaries/negative_emotion.rds&quot;</span>)</span></code></pre></div>
+</div>
+<div id="quanteda-dictionary" class="section level3">
+<h3>quanteda dictionary</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>neg_dict <span class="ot">&lt;-</span> <span class="fu">export_dict</span>(</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="at">result =</span> result,              <span class="co"># lexiexpand_result from interactive wizard</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="at">name   =</span> <span class="st">&quot;negative_emotion&quot;</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="at">format =</span> <span class="st">&quot;quanteda&quot;</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>)</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co"># Score a corpus</span></span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>corp   <span class="ot">&lt;-</span> <span class="fu">corpus</span>(<span class="fu">c</span>(</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>  <span class="at">doc1 =</span> <span class="st">&quot;She felt sad and miserable after the news.&quot;</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a>  <span class="at">doc2 =</span> <span class="st">&quot;He was furious but tried to stay calm.&quot;</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>  <span class="at">doc3 =</span> <span class="st">&quot;The report showed stable and optimistic results.&quot;</span></span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a>))</span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a>scored <span class="ot">&lt;-</span> <span class="fu">dfm</span>(<span class="fu">tokens</span>(corp)) <span class="sc">|&gt;</span></span>
+<span id="cb13-16"><a href="#cb13-16" tabindex="-1"></a>  <span class="fu">dfm_lookup</span>(<span class="at">dictionary =</span> neg_dict) <span class="sc">|&gt;</span></span>
+<span id="cb13-17"><a href="#cb13-17" tabindex="-1"></a>  <span class="fu">convert</span>(<span class="at">to =</span> <span class="st">&quot;data.frame&quot;</span>)</span>
+<span id="cb13-18"><a href="#cb13-18" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" tabindex="-1"></a>scored</span>
+<span id="cb13-20"><a href="#cb13-20" tabindex="-1"></a><span class="co">#&gt;   doc_id  negative_emotion</span></span>
+<span id="cb13-21"><a href="#cb13-21" tabindex="-1"></a><span class="co">#&gt; 1   doc1                 2</span></span>
+<span id="cb13-22"><a href="#cb13-22" tabindex="-1"></a><span class="co">#&gt; 2   doc2                 1</span></span>
+<span id="cb13-23"><a href="#cb13-23" tabindex="-1"></a><span class="co">#&gt; 3   doc3                 0</span></span></code></pre></div>
+</div>
+<div id="two-column-data-frame-tidytext-csv" class="section level3">
+<h3>Two-column data frame (tidytext / CSV)</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>dict_df <span class="ot">&lt;-</span> <span class="fu">export_dict</span>(</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>  <span class="at">result =</span> candidates,</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>  <span class="at">seed   =</span> <span class="fu">c</span>(<span class="st">&quot;sad&quot;</span>, <span class="st">&quot;angry&quot;</span>),</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a>  <span class="at">name   =</span> <span class="st">&quot;negative_emotion&quot;</span>,</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>  <span class="at">format =</span> <span class="st">&quot;data.frame&quot;</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>)</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">write.csv</span>(dict_df, <span class="st">&quot;dictionaries/negative_emotion.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="full-scripted-pipeline-mde-example" class="section level2">
+<h2>Full scripted pipeline (MDE example)</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">library</span>(lexiExpand)</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a><span class="fu">library</span>(mdeinR)     <span class="co"># provides mde_words (word + dimension columns)</span></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="co"># 1. Setup (first run only)</span></span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="fu">download_vectors</span>(<span class="st">&quot;glove.6B.50d&quot;</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="co"># 2. Load vectors once</span></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a>vecs <span class="ot">&lt;-</span> <span class="fu">load_vectors</span>(<span class="st">&quot;glove.6B.50d&quot;</span>, <span class="at">vocab_size =</span> <span class="dv">100000</span><span class="dt">L</span>)</span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a></span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a><span class="co"># 3. Expand all MDE dimensions from the lexicon data frame</span></span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>candidates_mde <span class="ot">&lt;-</span> <span class="fu">expand_lexicon</span>(</span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>  <span class="at">lexicon   =</span> mde_words,</span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>  <span class="at">n         =</span> <span class="dv">25</span><span class="dt">L</span>,</span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>  <span class="at">threshold =</span> <span class="fl">0.68</span>,</span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>  <span class="at">seed_mode =</span> <span class="st">&quot;individual&quot;</span>,</span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>  <span class="at">vectors   =</span> vecs</span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a>)</span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a></span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="co"># 4. Keep top-10 per dimension</span></span>
+<span id="cb15-20"><a href="#cb15-20" tabindex="-1"></a><span class="fu">library</span>(data.table)</span>
+<span id="cb15-21"><a href="#cb15-21" tabindex="-1"></a>top10 <span class="ot">&lt;-</span> <span class="fu">as.data.table</span>(candidates_mde)[</span>
+<span id="cb15-22"><a href="#cb15-22" tabindex="-1"></a>  , <span class="fu">head</span>(.SD, <span class="dv">10</span><span class="dt">L</span>), by <span class="ot">=</span> dimension</span>
+<span id="cb15-23"><a href="#cb15-23" tabindex="-1"></a>]</span>
+<span id="cb15-24"><a href="#cb15-24" tabindex="-1"></a></span>
+<span id="cb15-25"><a href="#cb15-25" tabindex="-1"></a><span class="co"># 5. Build augmented dictionary list</span></span>
+<span id="cb15-26"><a href="#cb15-26" tabindex="-1"></a>mde_aug <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">split</span>(mde_words<span class="sc">$</span>word, mde_words<span class="sc">$</span>dimension), identity)</span>
+<span id="cb15-27"><a href="#cb15-27" tabindex="-1"></a><span class="cf">for</span> (dim <span class="cf">in</span> <span class="fu">unique</span>(top10<span class="sc">$</span>dimension)) {</span>
+<span id="cb15-28"><a href="#cb15-28" tabindex="-1"></a>  mde_aug[[dim]] <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">c</span>(mde_aug[[dim]], top10[dimension <span class="sc">==</span> dim, word]))</span>
+<span id="cb15-29"><a href="#cb15-29" tabindex="-1"></a>}</span>
+<span id="cb15-30"><a href="#cb15-30" tabindex="-1"></a></span>
+<span id="cb15-31"><a href="#cb15-31" tabindex="-1"></a><span class="co"># 6. Export to quanteda and save</span></span>
+<span id="cb15-32"><a href="#cb15-32" tabindex="-1"></a><span class="fu">library</span>(quanteda)</span>
+<span id="cb15-33"><a href="#cb15-33" tabindex="-1"></a>full_dict <span class="ot">&lt;-</span> quanteda<span class="sc">::</span><span class="fu">dictionary</span>(mde_aug)</span>
+<span id="cb15-34"><a href="#cb15-34" tabindex="-1"></a><span class="fu">saveRDS</span>(full_dict, <span class="st">&quot;mde_dictionary_augmented.rds&quot;</span>)</span>
+<span id="cb15-35"><a href="#cb15-35" tabindex="-1"></a></span>
+<span id="cb15-36"><a href="#cb15-36" tabindex="-1"></a><span class="co"># 7. Score reviews</span></span>
+<span id="cb15-37"><a href="#cb15-37" tabindex="-1"></a>reviews <span class="ot">&lt;-</span> <span class="fu">corpus</span>(<span class="fu">c</span>(</span>
+<span id="cb15-38"><a href="#cb15-38" tabindex="-1"></a>  <span class="at">r1 =</span> <span class="st">&quot;The aroma was captivating and the presentation absolutely stunning.&quot;</span>,</span>
+<span id="cb15-39"><a href="#cb15-39" tabindex="-1"></a>  <span class="at">r2 =</span> <span class="st">&quot;Staff were genuinely warm — we felt truly part of a community.&quot;</span>,</span>
+<span id="cb15-40"><a href="#cb15-40" tabindex="-1"></a>  <span class="at">r3 =</span> <span class="st">&quot;We learned about fermentation — a fascinating culinary journey.&quot;</span>,</span>
+<span id="cb15-41"><a href="#cb15-41" tabindex="-1"></a>  <span class="at">r4 =</span> <span class="st">&quot;Very average. Nothing remarkable about the food or atmosphere.&quot;</span></span>
+<span id="cb15-42"><a href="#cb15-42" tabindex="-1"></a>))</span>
+<span id="cb15-43"><a href="#cb15-43" tabindex="-1"></a></span>
+<span id="cb15-44"><a href="#cb15-44" tabindex="-1"></a><span class="fu">dfm</span>(<span class="fu">tokens</span>(reviews)) <span class="sc">|&gt;</span></span>
+<span id="cb15-45"><a href="#cb15-45" tabindex="-1"></a>  <span class="fu">dfm_lookup</span>(<span class="at">dictionary =</span> full_dict) <span class="sc">|&gt;</span></span>
+<span id="cb15-46"><a href="#cb15-46" tabindex="-1"></a>  <span class="fu">convert</span>(<span class="at">to =</span> <span class="st">&quot;data.frame&quot;</span>)</span>
+<span id="cb15-47"><a href="#cb15-47" tabindex="-1"></a><span class="co">#&gt;   doc_id sensory affect social intellectual behavioral</span></span>
+<span id="cb15-48"><a href="#cb15-48" tabindex="-1"></a><span class="co">#&gt; 1     r1       3      1      0            0          0</span></span>
+<span id="cb15-49"><a href="#cb15-49" tabindex="-1"></a><span class="co">#&gt; 2     r2       0      1      3            0          0</span></span>
+<span id="cb15-50"><a href="#cb15-50" tabindex="-1"></a><span class="co">#&gt; 3     r3       0      1      0            3          0</span></span>
+<span id="cb15-51"><a href="#cb15-51" tabindex="-1"></a><span class="co">#&gt; 4     r4       0      0      0            0          0</span></span></code></pre></div>
+<hr />
+</div>
+<div id="tips-and-best-practices" class="section level2">
+<h2>Tips and best practices</h2>
+<p><strong>Choose your threshold carefully.</strong> A threshold of
+0.65–0.70 gives a broad semantic neighbourhood; 0.80+ restricts to
+near-synonyms. For publication work, review candidates manually
+(<code>interactive = TRUE</code>) rather than accepting all.</p>
+<p><strong>Watch for antonyms.</strong> Word embedding spaces cluster by
+<em>distributional context</em>, not polarity. “Sad” and “glad” appear
+in similar contexts, so “glad” may appear as a high-similarity candidate
+for a negative emotion seed. Always review candidates before
+accepting.</p>
+<p><strong>Higher dimensions = better neighbours (usually).</strong> The
+50-dimension model loads fast and works well for common English words.
+For domain-specific vocabulary (hospitality, legal, financial), try
+<code>&quot;glove.6B.100d&quot;</code> or <code>&quot;glove.6B.200d&quot;</code>.</p>
+<p><strong>Reproducibility.</strong> Save both the final dictionary
+<em>and</em> the full candidate table so you can document which words
+were considered:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">write.csv</span>(candidates_mde,</span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a>          <span class="st">&quot;appendix_all_candidates.csv&quot;</span>,</span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>          <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
