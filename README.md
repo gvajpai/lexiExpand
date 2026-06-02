@@ -14,18 +14,13 @@ Dictionary-based text analysis is widely used across social science, hospitality
 ## Installation
 
 ```r
-# Install dependencies first
-install.packages(c("cli", "data.table", "rappdirs"))
-
-# Install lexiExpand from source
-install.packages("lexiExpand_0.2.0.tar.gz", repos = NULL, type = "source")
-```
-
-Or install directly from GitHub:
-
-```r
+# Option 1 — Install directly from GitHub
 # install.packages("remotes")
 remotes::install_github("gvajpai/lexiExpand")
+
+# Option 2 — Download source tarball
+# https://github.com/gvajpai/lexiExpand/releases/latest
+install.packages("lexiExpand_0.2.0.tar.gz", repos = NULL, type = "source")
 ```
 
 ---
