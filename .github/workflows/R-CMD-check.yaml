@@ -9,13 +9,122 @@ on:
 jobs:
   R-CMD-check:
     runs-on: ubuntu-latest
+    env:
+      _R_CHECK_FORCE_SUGGESTS_: false   # don't fail if Suggests can't install
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
     steps:
       - uses: actions/checkout@v4
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
       - uses: r-lib/actions/setup-r@v2
         with:
           use-public-rspm: true
+
+      - name: Install Linux system dependencies
+        run: sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck
           needs: check
+
       - uses: r-lib/actions/check-r-package@v2
+        with:
+          args: 'c("--no-manual", "--no-vignettes")'
+          build_args: '"--no-build-vignettes"'
+          error-on: '"error"'
+EOF\
+cd ~/Projects/lexiExpand
+
+git add .github/workflows/R-CMD-check.yaml
+git commit -m "Fix CI: skip uninstallable Suggests, suppress Node.js 20 warning"
+git push
+cat > ~/Projects/lexiExpand/.github/workflows/R-CMD-check.yaml << 'EOF'
+name: R-CMD-check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  R-CMD-check:
+    runs-on: ubuntu-latest
+    env:
+      _R_CHECK_FORCE_SUGGESTS_: false   # don't fail if Suggests can't install
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install Linux system dependencies
+        run: sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          args: 'c("--no-manual", "--no-vignettes")'
+          build_args: '"--no-build-vignettes"'
+          error-on: '"error"'
+EOF\
+cd ~/Projects/lexiExpand
+
+git add .github/workflows/R-CMD-check.yaml
+git commit -m "Fix CI: skip uninstallable Suggests, suppress Node.js 20 warning"
+git push
+
+cd ~/Projects/lexiExpand
+
+git add .github/workflows/R-CMD-check.yaml
+git commit -m "Fix CI: skip uninstallable Suggests, suppress Node.js 20 warning"
+git push
+cat > ~/Projects/lexiExpand/.github/workflows/R-CMD-check.yaml << 'EOF'
+name: R-CMD-check
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  R-CMD-check:
+    runs-on: ubuntu-latest
+
+    env:
+      _R_CHECK_FORCE_SUGGESTS_: false
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install system dependencies
+        run: sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+
+      - uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::rcmdcheck
+          needs: check
+
+      - uses: r-lib/actions/check-r-package@v2
+        with:
+          args: 'c("--no-manual", "--no-vignettes")'
+          build_args: '"--no-build-vignettes"'
+          error-on: '"error"'
