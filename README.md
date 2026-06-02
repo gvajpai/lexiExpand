@@ -2,7 +2,7 @@
 
 **Automated semantic dictionary expansion for text analysis**
 
-[![R-CMD-check](https://github.com/gvajpai/lexiExpand/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/gvajpai/lexiExpand/actions)
+[![R-CMD-check](https://github.com/gvajpai/lexiExpand/workflows/R-CMD-check/badge.svg)](https://github.com/gvajpai/lexiExpand/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Dictionary-based text analysis is widely used across social science, hospitality research, and finance — but building and maintaining a good dictionary is painful. Miss one word and every document containing it is silently under-counted.
