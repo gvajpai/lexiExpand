@@ -321,7 +321,7 @@ vecs <- load_vectors_textdata(dimensions = 300, vocab_size = 50000)
 
 If you use `lexiExpand` in published research, please cite:
 
-> Vajpai, G. N. (2025). *lexiExpand: Semantic Dictionary Expander for Text Analysis*. R package version 0.2.0. https://github.com/gvajpai/lexiExpand
+> Vajpai, G. N. (2026). *lexiExpand: Semantic Dictionary Expander for Text Analysis*. R package version 0.2.0. https://github.com/gvajpai/lexiExpand
 
 For research using the MDE dictionary, also cite:
 
