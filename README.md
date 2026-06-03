@@ -331,4 +331,4 @@ For research using the MDE dictionary, also cite:
 
 ## License
 
-MIT © 2025 Gopi Nath Vajpai
+MIT © 2026 Gopi Nath Vajpai
