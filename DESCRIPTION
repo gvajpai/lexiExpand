@@ -4,6 +4,8 @@ Version: 0.2.0
 Authors@R: person("Gopi Nath", "Vajpai",
     role  = c("aut", "cre"),
     email = "gvajpai@udel.edu")
+Depends:
+    R (>= 4.1.0)
 Description: Expands seed dictionaries used in dictionary-based text analysis
     by finding semantically similar words using pre-trained GloVe word
     embeddings. Given a small set of seed words (e.g. c("sad", "angry")),
